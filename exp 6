@@ -1,0 +1,88 @@
+#include <stdio.h>
+#define MAX 10
+
+typedef struct {
+    int id;
+    int arrivalTime;
+    int burstTime;
+    int priority;
+    int remainingTime;
+} Process;
+
+void sortProcessesByArrival(Process processes[], int n) {
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < n-i-1; j++) {
+            if (processes[j].arrivalTime > processes[j+1].arrivalTime) {
+                Process temp = processes[j];
+                processes[j] = processes[j+1];
+                processes[j+1] = temp;
+            }
+        }
+    }
+}
+
+int getHighestPriorityProcess(Process processes[], int n, int currentTime) {
+    int highestPriorityIndex = -1;
+    int highestPriority = -1;
+    for (int i = 0; i < n; i++) {
+        if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0) {
+            if (processes[i].priority > highestPriority) {
+                highestPriority = processes[i].priority;
+                highestPriorityIndex = i;
+            }
+        }
+    }
+    return highestPriorityIndex;
+}
+
+int main() {
+    int n;
+    Process processes[MAX];
+    
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter arrival time, burst time, and priority of process %d: ", i+1);
+        scanf("%d%d%d", &processes[i].arrivalTime, &processes[i].burstTime, &processes[i].priority);
+        processes[i].id = i+1;
+        processes[i].remainingTime = processes[i].burstTime;
+    }
+
+    sortProcessesByArrival(processes, n);
+
+    int currentTime = 0, completed = 0;
+    while (completed != n) {
+        int index = getHighestPriorityProcess(processes, n, currentTime);
+        if (index != -1) {
+            processes[index].remainingTime--;
+            currentTime++;
+            
+            if (processes[index].remainingTime == 0) {
+                completed++;
+                printf("Process %d completed at time %d\n", processes[index].id, currentTime);
+            }
+        } else {
+            currentTime++;
+        }
+    }
+
+    return 0;
+}
+
+
+output:
+Enter the number of processes: 3
+Enter arrival time, burst time, and priority of process 1: 12
+1
+13
+Enter arrival time, burst time, and priority of process 2: 1
+5
+9
+Enter arrival time, burst time, and priority of process 3: 3
+6
+8
+Process 2 completed at time 6
+Process 3 completed at time 12
+Process 1 completed at time 13
+
